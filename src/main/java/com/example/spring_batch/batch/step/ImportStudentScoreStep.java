@@ -3,22 +3,22 @@ package com.example.spring_batch.batch.step;
 import com.example.spring_batch.batch.dto.StudentScoreDto;
 import com.example.spring_batch.batch.entity.StudentScoreEntity;
 import com.example.spring_batch.batch.processor.StudentScoreProcessor;
-import jakarta.persistence.EntityManagerFactory;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
-import org.springframework.batch.item.file.mapping.FieldSetMapper;
-import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
+
+import javax.persistence.EntityManagerFactory;
+
 
 @Configuration
 public class ImportStudentScoreStep {
@@ -27,29 +27,21 @@ public class ImportStudentScoreStep {
     private final EntityManagerFactory entityManagerFactory;
     private final PlatformTransactionManager platformTransactionManager;
     private final StudentScoreProcessor studentScoreProcessor;
+    private final StepBuilderFactory stepBuilderFactory;
 
     public ImportStudentScoreStep(JobRepository jobRepository
             , EntityManagerFactory entityManagerFactory
             , PlatformTransactionManager platformTransactionManager
-            , StudentScoreProcessor studentScoreProcessor) {
+            , StudentScoreProcessor studentScoreProcessor, StepBuilderFactory stepBuilderFactory) {
         this.jobRepository = jobRepository;
         this.entityManagerFactory = entityManagerFactory;
         this.platformTransactionManager = platformTransactionManager;
         this.studentScoreProcessor = studentScoreProcessor;
+        this.stepBuilderFactory = stepBuilderFactory;
     }
 
-    @Bean
-    public Step studentScoreCSVtoDB() {
-        return new StepBuilder("studentScoreCSVtoDB", jobRepository)
-                .<StudentScoreDto, StudentScoreEntity>chunk(3, platformTransactionManager)
-                .reader(studentScoreFileReader())
-                .processor(studentScoreProcessor)
-                .writer(studentScoreItemWriter())
-//                .taskExecutor(taskExecutor())
-                .build();
-    }
 
-    private FlatFileItemReader<StudentScoreDto> studentScoreFileReader(){
+    private FlatFileItemReader<StudentScoreDto> studentScoreFileReader() {
         return new FlatFileItemReaderBuilder<StudentScoreDto>()
                 .resource(new ClassPathResource("csv/student-score.csv"))
                 .name("studentScoreFileReader").delimited().delimiter(",")
@@ -81,26 +73,28 @@ public class ImportStudentScoreStep {
 
     }
 
-    private JpaItemWriter<StudentScoreEntity> studentScoreItemWriter(){
+    private JpaItemWriter<StudentScoreEntity> studentScoreItemWriter() {
         return new JpaItemWriterBuilder<StudentScoreEntity>()
                 .entityManagerFactory(entityManagerFactory)
                 .build();
     }
 
-     /*
+
+
     //( spring batch 4 - spring boot 2) Deprecated
-        public Step studentScoreCSVtoDBDeprecated(){
-        return new StepBuilderFactory.get("studentScoreCSVtoDB")
-                .<StudentScoreDto, StudentScoreEntity> chunk(3)
+    @Bean
+    public Step studentScoreCSVtoDBDeprecated() {
+        return stepBuilderFactory.get("studentScoreCSVtoDB")
+                .<StudentScoreDto, StudentScoreEntity>chunk(3)
                 .reader(studentScoreFileReader())
                 .processor(studentScoreProcessor)
                 .writer(studentScoreItemWriter())
                 .build();
     }
-     */
+
 
     @Bean
-    public TaskExecutor taskExecutor(){
+    public TaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(4);
         executor.setThreadNamePrefix("Thread N: ");

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class StudentScoreProcessor implements ItemProcessor<StudentScoreDto, StudentScoreEntity> {
+
     @Override
     public StudentScoreEntity process(StudentScoreDto studentScoreDto){
         StudentScoreEntity studentScoreEntity = new StudentScoreEntity();
