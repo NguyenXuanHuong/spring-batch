@@ -45,7 +45,7 @@ public class ImportStudentScoreStep {
                 .reader(studentScoreFileReader())
                 .processor(studentScoreProcessor)
                 .writer(studentScoreItemWriter())
-//                .taskExecutor(taskExecutor())
+                .taskExecutor(taskExecutor())
                 .build();
     }
 
@@ -87,17 +87,6 @@ public class ImportStudentScoreStep {
                 .build();
     }
 
-     /*
-    //( spring batch 4 - spring boot 2) Deprecated
-        public Step studentScoreCSVtoDBDeprecated(){
-        return new StepBuilderFactory.get("studentScoreCSVtoDB")
-                .<StudentScoreDto, StudentScoreEntity> chunk(3)
-                .reader(studentScoreFileReader())
-                .processor(studentScoreProcessor)
-                .writer(studentScoreItemWriter())
-                .build();
-    }
-     */
 
     @Bean
     public TaskExecutor taskExecutor(){
