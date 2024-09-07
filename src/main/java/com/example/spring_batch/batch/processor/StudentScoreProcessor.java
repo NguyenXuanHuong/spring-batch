@@ -17,12 +17,9 @@ public class StudentScoreProcessor implements ItemProcessor<StudentScoreDto, Stu
         studentScoreEntity.setName(studentScoreDto.getName());
         studentScoreEntity.setGender(studentScoreDto.getGender());
         studentScoreEntity.setSchoolName(studentScoreDto.getSchoolName());
-        log.info("processing item: " + studentScoreDto);
-        try {
-            // Sleep for 2 seconds (2000 milliseconds)
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            System.out.println("Thread interrupted");
+        if(studentScoreDto.getScore() < 0 || studentScoreDto.getScore() > 100){
+            throw new IllegalArgumentException("score:" + studentScoreDto.getScore() + " of the student "
+                    + studentScoreDto.getName() + " is not valid" );
         }
         return studentScoreEntity;
 

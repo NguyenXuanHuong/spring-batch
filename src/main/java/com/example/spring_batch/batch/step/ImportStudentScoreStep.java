@@ -2,6 +2,7 @@ package com.example.spring_batch.batch.step;
 
 import com.example.spring_batch.batch.dto.StudentScoreDto;
 import com.example.spring_batch.batch.entity.StudentScoreEntity;
+import com.example.spring_batch.batch.faulttolerance.CustomSkipPolicy;
 import com.example.spring_batch.batch.processor.StudentScoreProcessor;
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.batch.core.Step;
@@ -27,15 +28,17 @@ public class ImportStudentScoreStep {
     private final EntityManagerFactory entityManagerFactory;
     private final PlatformTransactionManager platformTransactionManager;
     private final StudentScoreProcessor studentScoreProcessor;
+    private final CustomSkipPolicy customSkipPolicy;
 
     public ImportStudentScoreStep(JobRepository jobRepository
             , EntityManagerFactory entityManagerFactory
             , PlatformTransactionManager platformTransactionManager
-            , StudentScoreProcessor studentScoreProcessor) {
+            , StudentScoreProcessor studentScoreProcessor, CustomSkipPolicy customSkipPolicy) {
         this.jobRepository = jobRepository;
         this.entityManagerFactory = entityManagerFactory;
         this.platformTransactionManager = platformTransactionManager;
         this.studentScoreProcessor = studentScoreProcessor;
+        this.customSkipPolicy = customSkipPolicy;
     }
 
     @Bean
@@ -45,13 +48,14 @@ public class ImportStudentScoreStep {
                 .reader(studentScoreFileReader())
                 .processor(studentScoreProcessor)
                 .writer(studentScoreItemWriter())
-                .taskExecutor(taskExecutor())
+                .faultTolerant()
+                .skipPolicy(customSkipPolicy)
                 .build();
     }
 
     private FlatFileItemReader<StudentScoreDto> studentScoreFileReader(){
         return new FlatFileItemReaderBuilder<StudentScoreDto>()
-                .resource(new ClassPathResource("csv/student-score.csv"))
+                .resource(new ClassPathResource("csv/student-score-bad-input.csv"))
                 .name("studentScoreFileReader").delimited().delimiter(",")
                 .names("name,age,score,gender,schoolName".split(","))
                 .linesToSkip(1)
@@ -87,12 +91,4 @@ public class ImportStudentScoreStep {
                 .build();
     }
 
-
-    @Bean
-    public TaskExecutor taskExecutor(){
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(4);
-        executor.setThreadNamePrefix("Thread N: ");
-        return executor;
-    }
 }
