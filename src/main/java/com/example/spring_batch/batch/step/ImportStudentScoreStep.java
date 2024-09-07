@@ -2,6 +2,7 @@ package com.example.spring_batch.batch.step;
 
 import com.example.spring_batch.batch.dto.StudentScoreDto;
 import com.example.spring_batch.batch.entity.StudentScoreEntity;
+import com.example.spring_batch.batch.listeners.CustomStepExecutionListener;
 import com.example.spring_batch.batch.processor.StudentScoreProcessor;
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.batch.core.Step;
@@ -27,15 +28,17 @@ public class ImportStudentScoreStep {
     private final EntityManagerFactory entityManagerFactory;
     private final PlatformTransactionManager platformTransactionManager;
     private final StudentScoreProcessor studentScoreProcessor;
+    private final CustomStepExecutionListener customStepExecutionListener;
 
     public ImportStudentScoreStep(JobRepository jobRepository
             , EntityManagerFactory entityManagerFactory
             , PlatformTransactionManager platformTransactionManager
-            , StudentScoreProcessor studentScoreProcessor) {
+            , StudentScoreProcessor studentScoreProcessor, CustomStepExecutionListener customStepExecutionListener) {
         this.jobRepository = jobRepository;
         this.entityManagerFactory = entityManagerFactory;
         this.platformTransactionManager = platformTransactionManager;
         this.studentScoreProcessor = studentScoreProcessor;
+        this.customStepExecutionListener = customStepExecutionListener;
     }
 
     @Bean
@@ -45,6 +48,7 @@ public class ImportStudentScoreStep {
                 .reader(studentScoreFileReader())
                 .processor(studentScoreProcessor)
                 .writer(studentScoreItemWriter())
+                .listener(customStepExecutionListener)
                 .taskExecutor(taskExecutor())
                 .build();
     }
