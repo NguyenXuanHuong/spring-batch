@@ -13,12 +13,15 @@ public class StudentScoreJob {
 
     private final Step studentScoreCSVtoDBDeprecated;
     private final JobBuilderFactory jobBuilderFactory;
+    private final Step sampleTaskletStep;
 
     public StudentScoreJob(
             @Qualifier("studentScoreCSVtoDBDeprecated") Step studentScoreCSVtoDBDeprecated
-            , JobBuilderFactory jobBuilderFactory) {
+            , JobBuilderFactory jobBuilderFactory
+            , @Qualifier("sampleTaskletStep") Step sampleTaskletStep) {
         this.studentScoreCSVtoDBDeprecated = studentScoreCSVtoDBDeprecated;
         this.jobBuilderFactory = jobBuilderFactory;
+        this.sampleTaskletStep = sampleTaskletStep;
     }
 
 
@@ -28,6 +31,7 @@ public class StudentScoreJob {
         return jobBuilderFactory.get("importStudentScore")
                 .incrementer(new RunIdIncrementer())
                 .start(studentScoreCSVtoDBDeprecated)
+                .next(sampleTaskletStep)
                 .build();
     }
 
