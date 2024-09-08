@@ -12,18 +12,16 @@ public class StudentScoreProcessor implements ItemProcessor<StudentScoreDto, Stu
     @Override
     public StudentScoreEntity process(StudentScoreDto studentScoreDto){
         StudentScoreEntity studentScoreEntity = new StudentScoreEntity();
-        studentScoreEntity.setScore(studentScoreDto.getScore());
+        try {
+            studentScoreEntity.setScore(studentScoreDto.getScore());
+        }catch (Exception e){
+            studentScoreEntity.setScore(null);
+
+        }
         studentScoreEntity.setAge(studentScoreDto.getAge());
         studentScoreEntity.setName(studentScoreDto.getName());
         studentScoreEntity.setGender(studentScoreDto.getGender());
         studentScoreEntity.setSchoolName(studentScoreDto.getSchoolName());
-        log.info("processing item: " + studentScoreDto);
-        try {
-            // Sleep for 2 seconds (2000 milliseconds)
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            System.out.println("Thread interrupted");
-        }
         return studentScoreEntity;
 
     }

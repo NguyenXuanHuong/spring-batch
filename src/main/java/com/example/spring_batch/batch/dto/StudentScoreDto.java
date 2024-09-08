@@ -3,7 +3,7 @@ package com.example.spring_batch.batch.dto;
 public class StudentScoreDto {
     private String name;
     private int age;
-    private int score;
+    private Integer score;
     private String gender;
     private String schoolName;
 
@@ -31,11 +31,11 @@ public class StudentScoreDto {
         this.age = age;
     }
 
-    public int getScore() {
+    public Integer getScore() {
         return score;
     }
 
-    public void setScore(int score) {
+    public void setScore(Integer score) {
         this.score = score;
     }
 

@@ -2,6 +2,7 @@ package com.example.spring_batch.batch.step;
 
 import com.example.spring_batch.batch.dto.StudentScoreDto;
 import com.example.spring_batch.batch.entity.StudentScoreEntity;
+import com.example.spring_batch.batch.listener.ImportStudentScoreListener;
 import com.example.spring_batch.batch.processor.StudentScoreProcessor;
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.batch.core.Step;
@@ -27,15 +28,17 @@ public class ImportStudentScoreStep {
     private final EntityManagerFactory entityManagerFactory;
     private final PlatformTransactionManager platformTransactionManager;
     private final StudentScoreProcessor studentScoreProcessor;
+    private final ImportStudentScoreListener importStudentScoreListener;
 
     public ImportStudentScoreStep(JobRepository jobRepository
             , EntityManagerFactory entityManagerFactory
             , PlatformTransactionManager platformTransactionManager
-            , StudentScoreProcessor studentScoreProcessor) {
+            , StudentScoreProcessor studentScoreProcessor, ImportStudentScoreListener importStudentScoreListener) {
         this.jobRepository = jobRepository;
         this.entityManagerFactory = entityManagerFactory;
         this.platformTransactionManager = platformTransactionManager;
         this.studentScoreProcessor = studentScoreProcessor;
+        this.importStudentScoreListener = importStudentScoreListener;
     }
 
     @Bean
@@ -46,6 +49,7 @@ public class ImportStudentScoreStep {
                 .processor(studentScoreProcessor)
                 .writer(studentScoreItemWriter())
                 .taskExecutor(taskExecutor())
+                .listener(importStudentScoreListener)
                 .build();
     }
 
@@ -55,10 +59,7 @@ public class ImportStudentScoreStep {
                 .name("studentScoreFileReader").delimited().delimiter(",")
                 .names("name,age,score,gender,schoolName".split(","))
                 .linesToSkip(1)
-                .targetType(StudentScoreDto.class)
 
-                /*
-                // manually mapping the csv item to the dto field.
                 .fieldSetMapper(new FieldSetMapper<StudentScoreDto>() {
                     @Override
                     public StudentScoreDto mapFieldSet(FieldSet fieldSet) {
@@ -68,13 +69,16 @@ public class ImportStudentScoreStep {
 //                        studentScoreDto.setScore(fieldSet.readInt(4));
                         studentScoreDto.setName(fieldSet.readString("name"));
                         studentScoreDto.setAge(fieldSet.readInt("age"));
-                        studentScoreDto.setScore(fieldSet.readInt("score"));
+                        try {
+                            studentScoreDto.setScore(fieldSet.readInt("score"));
+                        }catch (Exception e){
+                            studentScoreDto.setScore(null);
+                        }
                         studentScoreDto.setGender(fieldSet.readString("gender"));
                         studentScoreDto.setSchoolName(fieldSet.readString("schoolName"));
                         return studentScoreDto;
                     }
                 })
-                 */
 
 
                 .build();

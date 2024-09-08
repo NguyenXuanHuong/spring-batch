@@ -13,7 +13,7 @@ public class StudentScoreEntity {
     private String name;
     private String schoolName;
     private int age;
-    private int score;
+    private Integer score;
     private String gender;
 
     public int getId() {
@@ -48,11 +48,11 @@ public class StudentScoreEntity {
         this.age = age;
     }
 
-    public int getScore() {
+    public Integer getScore() {
         return score;
     }
 
-    public void setScore(int score) {
+    public void setScore(Integer score) {
         this.score = score;
     }
 
