@@ -16,8 +16,6 @@ import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -45,7 +43,6 @@ public class ImportStudentScoreStep {
                 .reader(studentScoreFileReader())
                 .processor(studentScoreProcessor)
                 .writer(studentScoreItemWriter())
-                .taskExecutor(taskExecutor())
                 .build();
     }
 
@@ -87,12 +84,4 @@ public class ImportStudentScoreStep {
                 .build();
     }
 
-
-    @Bean
-    public TaskExecutor taskExecutor(){
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(4);
-        executor.setThreadNamePrefix("Thread N: ");
-        return executor;
-    }
 }
