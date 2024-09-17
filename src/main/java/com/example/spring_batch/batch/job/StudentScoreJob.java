@@ -21,12 +21,12 @@ public class StudentScoreJob {
 
 
     @Bean
-    ApplicationRunner manuallyJobRunner(JobLauncher jobLauncher, Job studentScoreJobConfig) {
+    ApplicationRunner manuallyJobRunner(JobLauncher jobLauncher, Job studentScoreProcessJob) {
         return args -> {
             var jobParameters = new JobParametersBuilder()
                     .addString("job-run-date", String.valueOf(new Date()))
                     .toJobParameters();
-            var run = jobLauncher.run(studentScoreJobConfig, jobParameters);
+            var run = jobLauncher.run(studentScoreProcessJob, jobParameters);
             var instanceId = run.getJobInstance().getInstanceId();
             System.out.println("job instanceId: " + instanceId);
         };
@@ -40,7 +40,7 @@ public class StudentScoreJob {
     }
 
     @Bean
-    public Job studentScoreJobConfig() {
+    public Job studentScoreProcessJob() {
         return new JobBuilder("studentScoreJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .start(studentScoreCSVtoDB)
