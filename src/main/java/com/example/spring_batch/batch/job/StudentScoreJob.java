@@ -20,8 +20,6 @@ public class StudentScoreJob {
         this.jobBuilderFactory = jobBuilderFactory;
     }
 
-
-    //( spring batch 4 - spring boot 2) Deprecated
     @Bean
     public Job importStudentScoreJob(){
         return jobBuilderFactory.get("importStudentScore")
