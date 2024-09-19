@@ -13,23 +13,19 @@ import org.springframework.context.annotation.Configuration;
 public class StudentScoreJob {
     private final JobRepository jobRepository;
     private final Step studentScoreCSVtoDB;
-    private final Step jobStartedNotificationTaskletStep;
 
     public StudentScoreJob(
             JobRepository jobRepository
-            , @Qualifier("studentScoreCSVtoDB") Step studentScoreCSVtoDB
-            , @Qualifier("jobStartedNotificationTaskletStep") Step jobStartedNotificationTaskletStep) {
+            , Step studentScoreCSVtoDB) {
         this.jobRepository = jobRepository;
         this.studentScoreCSVtoDB = studentScoreCSVtoDB;
-        this.jobStartedNotificationTaskletStep = jobStartedNotificationTaskletStep;
     }
 
     @Bean
     public Job studentScoreProcessJob() {
-        return new JobBuilder("studentScoreJob", jobRepository)
-                .incrementer(new RunIdIncrementer())
-                .start(jobStartedNotificationTaskletStep)
-                .next(studentScoreCSVtoDB)
+        return new JobBuilder("studentScoreJobName", jobRepository)
+//                .incrementer(new RunIdIncrementer())
+                .start(studentScoreCSVtoDB)
                 .build();
     }
 

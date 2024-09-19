@@ -15,7 +15,7 @@ public class JobService {
     private final JobLauncher jobLauncher;
     private final Job studentScoreProcessJob;
 
-    public JobService(JobLauncher jobLauncher, @Qualifier("studentScoreProcessJob") Job studentScoreProcessJob) {
+    public JobService(JobLauncher jobLauncher, Job studentScoreProcessJob) {
         this.jobLauncher = jobLauncher;
         this.studentScoreProcessJob = studentScoreProcessJob;
     }
