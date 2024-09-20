@@ -16,7 +16,8 @@ public class JobController {
     }
 
     @GetMapping("")
-	public String startJob() {
+	public String startJob()
+			throws Exception {
 		jobService.startJob();
 		return "Job Started...";
 	}

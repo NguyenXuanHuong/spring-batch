@@ -24,8 +24,8 @@ public class StudentScoreProcessor implements ItemProcessor<StudentScoreDto, Stu
     @Override
     public StudentScoreEntity process(StudentScoreDto studentScoreDto){
 
-        String parameterValue = stepExecution.getJobParameters().getString("job-run-date");
-        System.out.println(parameterValue);
+        String parameterValue = stepExecution.getJobParameters().getString("first-parameter-key");
+        System.out.println("Job parameters: " + parameterValue);
 
         StudentScoreEntity studentScoreEntity = new StudentScoreEntity();
         studentScoreEntity.setScore(studentScoreDto.getScore());
