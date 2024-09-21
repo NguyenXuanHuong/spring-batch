@@ -23,7 +23,6 @@ public class JobService {
         this.studentScoreProcessJob = studentScoreProcessJob;
     }
 
-    @Async
     public void startJob() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
         var jobParameters = new JobParametersBuilder()
                 .addString("first-parameter-key", "firstValue")
