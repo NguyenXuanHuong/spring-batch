@@ -17,10 +17,10 @@ public class StudentScoreProcessor implements ItemProcessor<StudentScoreDto, Stu
         studentScoreEntity.setName(studentScoreDto.getName());
         studentScoreEntity.setGender(studentScoreDto.getGender());
         studentScoreEntity.setSchoolName(studentScoreDto.getSchoolName());
-        if(studentScoreDto.getScore() < 0 || studentScoreDto.getScore() > 100){
-            throw new IllegalArgumentException("score:" + studentScoreDto.getScore() + " of the student "
-                    + studentScoreDto.getName() + " is not valid" );
-        }
+//        if(studentScoreDto.getScore() < 0 || studentScoreDto.getScore() > 100){
+//            throw new IllegalArgumentException("score:" + studentScoreDto.getScore() + " of the student "
+//                    + studentScoreDto.getName() + " is not valid" );
+//        }
         return studentScoreEntity;
 
     }

@@ -2,8 +2,8 @@ name,age,score,gender,schoolName
 student1,16,10,female,school1
 student2,17,20,male,school1
 student3,18,300,male,school1
-student4,16,40,female,school2
-student5,17,50,male,school2
+student4,16,40,female,school2,school2
+student5,17,50,male,school2,school2
 student6,18,60,male,school2,school2
 student7,16,70,female,school3
 student8,17,80,male,school3
