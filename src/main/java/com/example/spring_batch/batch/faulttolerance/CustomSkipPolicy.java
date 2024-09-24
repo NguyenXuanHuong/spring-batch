@@ -17,21 +17,16 @@ public class CustomSkipPolicy implements SkipPolicy {
 
     private final Integer skipLimit = 10;
 
+
     @Override
     public boolean shouldSkip(Throwable exception, long skipCount) throws SkipLimitExceededException {
         if (exception instanceof FileNotFoundException){
             return Boolean.FALSE;
-        }else if ((exception instanceof FlatFileParseException) && (skipCount <= skipLimit) ){
-            FlatFileParseException fileParseException = (FlatFileParseException) exception;
+        }else if ((exception instanceof FlatFileParseException fileParseException) && (skipCount <= skipLimit) ){
             String input = fileParseException.getInput();
             int lineNumber = fileParseException.getLineNumber();
             log.error("The line with error is: {}",input);
             log.error("The line number with error is: {}",lineNumber);
-            //write into a file
-            //send into kafka topic or any Message broker
-            return Boolean.TRUE;
-        }else if ((exception instanceof IllegalArgumentException) && (skipCount <= skipLimit) ){
-            log.warn(exception.getMessage());
             return Boolean.TRUE;
         }
         return false;
