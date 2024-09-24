@@ -1,5 +1,7 @@
 package com.example.spring_batch.batch.customizedIitemWriter;
 
+import org.springframework.batch.core.annotation.AfterWrite;
+import org.springframework.batch.core.annotation.BeforeWrite;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.stereotype.Component;
@@ -16,6 +18,16 @@ public class CustomItemWriter implements ItemWriter<Integer> {
             outputString.append(" item#").append(integer);
         }
         System.out.println(outputString);
-        System.out.println("-----------------------");
+    }
+
+    @BeforeWrite
+    public void beforeItemWriter(){
+        System.out.println("log before write");
+    }
+
+    @AfterWrite
+    public void afterItemWriter(){
+        System.out.println("log after write item");
+        System.out.println("-------------------------");
     }
 }

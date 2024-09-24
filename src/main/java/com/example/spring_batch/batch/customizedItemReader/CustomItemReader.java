@@ -1,5 +1,8 @@
 package com.example.spring_batch.batch.customizedItemReader;
 
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.annotation.AfterRead;
+import org.springframework.batch.core.annotation.BeforeRead;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
@@ -28,5 +31,14 @@ public class CustomItemReader implements ItemReader<String> {
             System.out.println("all items are read so null value is returned");
             return null;
         }
+    }
+    @BeforeRead
+    public void beforeItemReader(){
+        System.out.println("log before read");
+    }
+    @AfterRead
+    public void afterItemReader(){
+        System.out.println("log after read");
+        System.out.println("-------------------------");
     }
 }
