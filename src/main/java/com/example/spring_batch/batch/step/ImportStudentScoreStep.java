@@ -48,7 +48,6 @@ public class ImportStudentScoreStep {
                 .reader(studentScoreFileReader())
                 .processor(studentScoreProcessor)
                 .writer(studentScoreItemWriter())
-                .taskExecutor(taskExecutor())
                 .listener(importStudentScoreListener)
                 .build();
     }
@@ -91,12 +90,4 @@ public class ImportStudentScoreStep {
                 .build();
     }
 
-
-    @Bean
-    public TaskExecutor taskExecutor(){
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(4);
-        executor.setThreadNamePrefix("Thread N: ");
-        return executor;
-    }
 }
