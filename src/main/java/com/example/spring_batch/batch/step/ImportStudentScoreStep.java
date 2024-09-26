@@ -58,14 +58,10 @@ public class ImportStudentScoreStep {
                 .name("studentScoreFileReader").delimited().delimiter(",")
                 .names("name,age,score,gender,schoolName".split(","))
                 .linesToSkip(1)
-
                 .fieldSetMapper(new FieldSetMapper<StudentScoreDto>() {
                     @Override
                     public StudentScoreDto mapFieldSet(FieldSet fieldSet) {
                         StudentScoreDto studentScoreDto = new StudentScoreDto();
-//                        studentScoreDto.setName(fieldSet.readString(2));
-//                        studentScoreDto.setAge(fieldSet.readInt(3));
-//                        studentScoreDto.setScore(fieldSet.readInt(4));
                         studentScoreDto.setName(fieldSet.readString("name"));
                         studentScoreDto.setAge(fieldSet.readInt("age"));
                         try {
@@ -78,8 +74,6 @@ public class ImportStudentScoreStep {
                         return studentScoreDto;
                     }
                 })
-
-
                 .build();
 
     }
