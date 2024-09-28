@@ -38,7 +38,6 @@ public class FindTop3Student {
     @Bean
     @StepScope
     public Tasklet top3StudentTasklet(@Value("#{jobExecutionContext['myKey']}") String name){
-
         return ((contribution, context) -> {
             var stepExecution = StepSynchronizationManager.getContext().getStepExecution();
             var jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();

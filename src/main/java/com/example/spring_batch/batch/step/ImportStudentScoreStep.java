@@ -8,6 +8,7 @@ import jakarta.persistence.EntityManagerFactory;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
@@ -55,6 +56,8 @@ public class ImportStudentScoreStep {
     @StepScope
     @Bean
     public FlatFileItemReader<StudentScoreDto> studentScoreFileReader(){
+        var stepExecution = StepSynchronizationManager.getContext().getStepExecution().getExecutionContext();
+        stepExecution.put("firstStepExecute", "firstStepExecute111");
         return new FlatFileItemReaderBuilder<StudentScoreDto>()
                 .resource(new ClassPathResource("csv/student-score.csv"))
                 .name("studentScoreFileReader").delimited().delimiter(",")
