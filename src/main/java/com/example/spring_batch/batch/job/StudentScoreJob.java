@@ -48,7 +48,6 @@ public class StudentScoreJob {
     @Bean
     public Job studentScoreJobConfigSequence() {
         return new JobBuilder("studentScoreJob", jobRepository)
-                .incrementer(new RunIdIncrementer())
                 .start(importStudentScoreCSVtoDB)
                 .next(handleMissingScoreStudentStep)
                 .next(findTop3Student)

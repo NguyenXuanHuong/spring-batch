@@ -13,9 +13,9 @@ public class StudentScoreProcessor implements ItemProcessor<StudentScoreDto, Stu
     @Override
     public StudentScoreEntity process(StudentScoreDto studentScoreDto){
         if (StepSynchronizationManager.getContext() != null){
-            var stepExecution = StepSynchronizationManager.getContext().getStepExecution().getExecutionContext();
-            System.out.println("variable value passed from item reader:" 
-                    + stepExecution.get("step-execution-context-item-reader-key"));
+            var stepExecutionContext = StepSynchronizationManager.getContext().getStepExecution().getExecutionContext();
+            System.out.println("inside item writer get variable value passed from item reader:"
+                    + stepExecutionContext.get("step-execution-context-item-reader-key"));
         }
         StudentScoreEntity studentScoreEntity = new StudentScoreEntity();
         try {

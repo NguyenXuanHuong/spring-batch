@@ -60,8 +60,8 @@ public class ImportStudentScoreStep {
             @Value("#{jobParameters[csvFilePath]}") String filePath){
         System.out.println("reading file at: " + filePath);
         if(StepSynchronizationManager.getContext() != null){
-            var stepExecution = StepSynchronizationManager.getContext().getStepExecution().getExecutionContext();
-            stepExecution.put("step-execution-context-item-reader-key", "step-execution-context-item-reader-value");
+            var stepExecutionContext = StepSynchronizationManager.getContext().getStepExecution().getExecutionContext();
+            stepExecutionContext.put("step-execution-context-item-reader-key", "step-execution-context-item-reader-value");
         }
         return new FlatFileItemReaderBuilder<StudentScoreDto>()
                 .resource(new ClassPathResource(filePath))
