@@ -6,6 +6,7 @@ import com.example.spring_batch.batch.listener.ImportStudentScoreListener;
 import com.example.spring_batch.batch.processor.StudentScoreProcessor;
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.database.JpaItemWriter;
@@ -17,8 +18,6 @@ import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -29,6 +28,7 @@ public class ImportStudentScoreStep {
     private final PlatformTransactionManager platformTransactionManager;
     private final StudentScoreProcessor studentScoreProcessor;
     private final ImportStudentScoreListener importStudentScoreListener;
+
 
     public ImportStudentScoreStep(JobRepository jobRepository
             , EntityManagerFactory entityManagerFactory
@@ -52,7 +52,9 @@ public class ImportStudentScoreStep {
                 .build();
     }
 
-    private FlatFileItemReader<StudentScoreDto> studentScoreFileReader(){
+    @StepScope
+    @Bean
+    public FlatFileItemReader<StudentScoreDto> studentScoreFileReader(){
         return new FlatFileItemReaderBuilder<StudentScoreDto>()
                 .resource(new ClassPathResource("csv/student-score.csv"))
                 .name("studentScoreFileReader").delimited().delimiter(",")

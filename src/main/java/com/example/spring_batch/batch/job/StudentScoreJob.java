@@ -18,7 +18,6 @@ public class StudentScoreJob {
     private final Step findTop3Student;
     private final Step handleMissingScoreStudentStep;
 
-
     public StudentScoreJob(
             JobRepository jobRepository
             , @Qualifier("studentScoreCSVtoDB") Step importStudentScoreCSVtoDB
@@ -29,26 +28,14 @@ public class StudentScoreJob {
         this.findTop3Student = findTop3Student;
         this.handleMissingScoreStudentStep = handleMissingScoreStudentStep;
     }
-
     @Bean
-    public Job studentScoreJobConfig() {
+    public Job studentScoreJobConfigSequence() {
         return new JobBuilder("studentScoreJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .start(importStudentScoreCSVtoDB)
-                .on(StepExitStatus.NULL_SCORE_STUDENT_EXIST.name()).to(handleMissingScoreStudentStep)
-                .from(importStudentScoreCSVtoDB).on("*").to(findTop3Student)
-                .end()
+                .next(handleMissingScoreStudentStep)
+                .next(findTop3Student)
                 .build();
     }
-//
-//    @Bean
-//    public Job studentScoreJobConfigSequence() {
-//        return new JobBuilder("studentScoreJob", jobRepository)
-//                .incrementer(new RunIdIncrementer())
-//                .start(importStudentScoreCSVtoDB)
-//                .next(handleMissingScoreStudentStep)
-//                .next(findTop3Student)
-//                .build();
-//    }
 
 }
