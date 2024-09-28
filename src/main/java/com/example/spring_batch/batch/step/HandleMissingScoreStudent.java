@@ -34,10 +34,12 @@ public class HandleMissingScoreStudent {
     @Bean
     Tasklet handleMissingScoreStudentTasklet() {
         return ((contribution, context) -> {
-            var stepExecution = StepSynchronizationManager.getContext().getStepExecution();
-            var jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
-            jobExecutionContext.put("myKey", "newValue");
-            log.error("found some missing score student");
+            if(StepSynchronizationManager.getContext() != null){
+                var stepExecution = StepSynchronizationManager.getContext().getStepExecution();
+                var jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
+                jobExecutionContext.put("key-from-another-step", "value-from-another-step");
+            }
+            log.warn("found some missing score student");
             return RepeatStatus.FINISHED;
         }
         );

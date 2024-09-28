@@ -28,7 +28,8 @@ public class FindTop3Student {
     private final StudentScoreRepository studentScoreRepository;
     private final Top3StudentRepository top3StudentRepository;
 
-    public FindTop3Student(JobRepository jobRepository, PlatformTransactionManager txm, StudentScoreRepository studentScoreRepository, Top3StudentRepository top3StudentRepository) {
+    public FindTop3Student(JobRepository jobRepository, PlatformTransactionManager txm
+            , StudentScoreRepository studentScoreRepository, Top3StudentRepository top3StudentRepository) {
         this.jobRepository = jobRepository;
         this.txm = txm;
         this.studentScoreRepository = studentScoreRepository;
@@ -37,13 +38,16 @@ public class FindTop3Student {
 
     @Bean
     @StepScope
-    public Tasklet top3StudentTasklet(@Value("#{jobExecutionContext['myKey']}") String name){
+    public Tasklet top3StudentTasklet(
+            @Value("#{jobExecutionContext['key-from-another-step']}") String valueFromAnotherStep1){
         return ((contribution, context) -> {
-            var stepExecution = StepSynchronizationManager.getContext().getStepExecution();
-            var jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
-            String value = (String) jobExecutionContext.get("myKey");
-            System.out.println("value:" + value);
-            System.out.println("myKey:" + name);
+            if(StepSynchronizationManager.getContext() != null){
+                var stepExecution = StepSynchronizationManager.getContext().getStepExecution();
+                var jobExecutionContext = stepExecution.getJobExecution().getExecutionContext();
+                String valueFromAnotherStep2 = (String) jobExecutionContext.get("key-from-another-step");
+                System.out.println("value get by using springExpressionLanguageValue:" + valueFromAnotherStep1);
+                System.out.println("value get by jobExecutionContext:" + valueFromAnotherStep2);
+            }
             List<StudentScoreEntity> top3Students =
                     studentScoreRepository.findTop3OrderByScoreDesc(PageRequest.of(0, 3));
             List<Top3StudentEntity> studentInTop3EntityList = new ArrayList<>();

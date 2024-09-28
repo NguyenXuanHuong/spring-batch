@@ -3,13 +3,19 @@ package com.example.spring_batch.batch.job;
 import com.example.spring_batch.batch.StepExitStatus;
 import com.example.spring_batch.batch.step.FindTop3Student;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Date;
+import java.util.UUID;
 
 @Configuration
 public class StudentScoreJob {
@@ -17,6 +23,17 @@ public class StudentScoreJob {
     private final Step importStudentScoreCSVtoDB;
     private final Step findTop3Student;
     private final Step handleMissingScoreStudentStep;
+
+    @Bean
+    ApplicationRunner JobRunner(JobLauncher jobLauncher, Job studentScoreJobConfigSequence) {
+        return args -> {
+            var jobParameters = new JobParametersBuilder()
+                    .addString("uuid", UUID.randomUUID().toString())
+                    .addString("csvFilePath", "csv/student-score.csv")
+                    .toJobParameters();
+            jobLauncher.run(studentScoreJobConfigSequence, jobParameters);
+        };
+    }
 
     public StudentScoreJob(
             JobRepository jobRepository

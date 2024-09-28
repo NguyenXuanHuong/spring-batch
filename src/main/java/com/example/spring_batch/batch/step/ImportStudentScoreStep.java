@@ -16,6 +16,7 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -46,7 +47,7 @@ public class ImportStudentScoreStep {
     public Step studentScoreCSVtoDB() {
         return new StepBuilder("studentScoreCSVtoDB", jobRepository)
                 .<StudentScoreDto, StudentScoreEntity>chunk(3, platformTransactionManager)
-                .reader(studentScoreFileReader())
+                .reader(studentScoreFileReader(null))
                 .processor(studentScoreProcessor)
                 .writer(studentScoreItemWriter())
                 .listener(importStudentScoreListener)
@@ -55,11 +56,15 @@ public class ImportStudentScoreStep {
 
     @StepScope
     @Bean
-    public FlatFileItemReader<StudentScoreDto> studentScoreFileReader(){
-        var stepExecution = StepSynchronizationManager.getContext().getStepExecution().getExecutionContext();
-        stepExecution.put("firstStepExecute", "firstStepExecute111");
+    public FlatFileItemReader<StudentScoreDto> studentScoreFileReader(
+            @Value("#{jobParameters[csvFilePath]}") String filePath){
+        System.out.println("reading file at: " + filePath);
+        if(StepSynchronizationManager.getContext() != null){
+            var stepExecution = StepSynchronizationManager.getContext().getStepExecution().getExecutionContext();
+            stepExecution.put("step-execution-context-item-reader-key", "step-execution-context-item-reader-value");
+        }
         return new FlatFileItemReaderBuilder<StudentScoreDto>()
-                .resource(new ClassPathResource("csv/student-score.csv"))
+                .resource(new ClassPathResource(filePath))
                 .name("studentScoreFileReader").delimited().delimiter(",")
                 .names("name,age,score,gender,schoolName".split(","))
                 .linesToSkip(1)
@@ -69,11 +74,7 @@ public class ImportStudentScoreStep {
                         StudentScoreDto studentScoreDto = new StudentScoreDto();
                         studentScoreDto.setName(fieldSet.readString("name"));
                         studentScoreDto.setAge(fieldSet.readInt("age"));
-                        try {
-                            studentScoreDto.setScore(fieldSet.readInt("score"));
-                        }catch (Exception e){
-                            studentScoreDto.setScore(null);
-                        }
+                        studentScoreDto.setScore(fieldSet.readInt("score"));
                         studentScoreDto.setGender(fieldSet.readString("gender"));
                         studentScoreDto.setSchoolName(fieldSet.readString("schoolName"));
                         return studentScoreDto;

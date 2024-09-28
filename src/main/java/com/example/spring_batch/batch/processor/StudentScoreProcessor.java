@@ -12,9 +12,11 @@ import org.springframework.stereotype.Component;
 public class StudentScoreProcessor implements ItemProcessor<StudentScoreDto, StudentScoreEntity> {
     @Override
     public StudentScoreEntity process(StudentScoreDto studentScoreDto){
-
-        var stepExecution = StepSynchronizationManager.getContext().getStepExecution().getExecutionContext();
-        System.out.println("firstStepExecute" + stepExecution.get("firstStepExecute"));
+        if (StepSynchronizationManager.getContext() != null){
+            var stepExecution = StepSynchronizationManager.getContext().getStepExecution().getExecutionContext();
+            System.out.println("variable value passed from item reader:" 
+                    + stepExecution.get("step-execution-context-item-reader-key"));
+        }
         StudentScoreEntity studentScoreEntity = new StudentScoreEntity();
         try {
             studentScoreEntity.setScore(studentScoreDto.getScore());
