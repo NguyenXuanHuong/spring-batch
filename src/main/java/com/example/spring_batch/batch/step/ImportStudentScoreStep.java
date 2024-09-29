@@ -10,6 +10,7 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -60,8 +61,9 @@ public class ImportStudentScoreStep {
             @Value("#{jobParameters[csvFilePath]}") String filePath){
         System.out.println("reading file at: " + filePath);
         if(StepSynchronizationManager.getContext() != null){
-            var stepExecutionContext = StepSynchronizationManager.getContext().getStepExecution().getExecutionContext();
-            stepExecutionContext.put("step-execution-context-item-reader-key", "step-execution-context-item-reader-value");
+            ExecutionContext stepExecutionContext = StepSynchronizationManager.getContext().getStepExecution().getExecutionContext();
+            String variableInsideItemReader = "step-execution-context-item-reader-value";
+            stepExecutionContext.put("step-execution-context-item-reader-key", variableInsideItemReader);
         }
         return new FlatFileItemReaderBuilder<StudentScoreDto>()
                 .resource(new ClassPathResource(filePath))
