@@ -6,7 +6,6 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +22,7 @@ public class StudentScoreJob {
         return args -> {
             var jobParameters = new JobParametersBuilder()
                     .addString("uuid", UUID.randomUUID().toString())
-                    .addString("csvFilePath", "csv/student-score.xml")
+                    .addString("xmlFilePath", "xml/student-score.xml")
                     .toJobParameters();
             jobLauncher.run(studentScoreJobConfigSequence, jobParameters);
         };

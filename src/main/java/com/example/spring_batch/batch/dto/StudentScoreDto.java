@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@XmlRootElement()
+@XmlRootElement(name = "student")
 @Data
 public class StudentScoreDto {
     private String name;
