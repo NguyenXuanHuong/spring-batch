@@ -1,94 +1,88 @@
 package com.example.spring_batch.batch.step;
 
+import com.example.spring_batch.batch.dto.StudentExtractedInfoDto;
 import com.example.spring_batch.batch.dto.StudentScoreDto;
-import com.example.spring_batch.batch.entity.StudentScoreEntity;
-import com.example.spring_batch.batch.listener.ImportStudentScoreListener;
 import com.example.spring_batch.batch.processor.StudentScoreProcessor;
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.database.JpaItemWriter;
-import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
-import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
-import org.springframework.batch.item.file.mapping.FieldSetMapper;
-import org.springframework.batch.item.file.transform.FieldSet;
+import org.springframework.batch.item.Chunk;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.xml.StaxEventItemReader;
+import org.springframework.batch.item.xml.StaxEventItemWriter;
+import org.springframework.batch.item.xml.builder.StaxEventItemReaderBuilder;
+import org.springframework.batch.item.xml.builder.StaxEventItemWriterBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.WritableResource;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 public class ImportStudentScoreStep {
 
     private final JobRepository jobRepository;
-    private final EntityManagerFactory entityManagerFactory;
     private final PlatformTransactionManager platformTransactionManager;
     private final StudentScoreProcessor studentScoreProcessor;
-    private final ImportStudentScoreListener importStudentScoreListener;
 
 
     public ImportStudentScoreStep(JobRepository jobRepository
-            , EntityManagerFactory entityManagerFactory
             , PlatformTransactionManager platformTransactionManager
-            , StudentScoreProcessor studentScoreProcessor, ImportStudentScoreListener importStudentScoreListener) {
+            , StudentScoreProcessor studentScoreProcessor) {
         this.jobRepository = jobRepository;
-        this.entityManagerFactory = entityManagerFactory;
         this.platformTransactionManager = platformTransactionManager;
         this.studentScoreProcessor = studentScoreProcessor;
-        this.importStudentScoreListener = importStudentScoreListener;
     }
 
     @Bean
     public Step studentScoreCSVtoDB() {
         return new StepBuilder("studentScoreCSVtoDB", jobRepository)
-                .<StudentScoreDto, StudentScoreEntity>chunk(3, platformTransactionManager)
-                .reader(studentScoreFileReader(null))
+                .<StudentScoreDto, StudentExtractedInfoDto>chunk(1, platformTransactionManager)
+                .reader(itemReader(null))
                 .processor(studentScoreProcessor)
-                .writer(studentScoreItemWriter())
-                .listener(importStudentScoreListener)
+                .writer(personXmlFileWriter())
                 .build();
     }
 
     @StepScope
     @Bean
-    public FlatFileItemReader<StudentScoreDto> studentScoreFileReader(
-            @Value("#{jobParameters[csvFilePath]}") String filePath){
-        System.out.println("reading file at: " + filePath);
-        if(StepSynchronizationManager.getContext() != null){
-            ExecutionContext stepExecutionContext = StepSynchronizationManager.getContext().getStepExecution().getExecutionContext();
-            String variableInsideItemReader = "step-execution-context-item-reader-value";
-            stepExecutionContext.put("step-execution-context-item-reader-key", variableInsideItemReader);
-        }
-        return new FlatFileItemReaderBuilder<StudentScoreDto>()
+    public StaxEventItemReader<StudentScoreDto> itemReader(
+            @Value("#{jobParameters[csvFilePath]}") String filePath) {
+        return new StaxEventItemReaderBuilder<StudentScoreDto>()
+                .name("studentXmlFileReader")
                 .resource(new ClassPathResource(filePath))
-                .name("studentScoreFileReader").delimited().delimiter(",")
-                .names("name,age,score,gender,schoolName".split(","))
-                .linesToSkip(1)
-                .fieldSetMapper(new FieldSetMapper<StudentScoreDto>() {
-                    @Override
-                    public StudentScoreDto mapFieldSet(FieldSet fieldSet) {
-                        StudentScoreDto studentScoreDto = new StudentScoreDto();
-                        studentScoreDto.setName(fieldSet.readString("name"));
-                        studentScoreDto.setAge(fieldSet.readInt("age"));
-                        studentScoreDto.setScore(fieldSet.readInt("score"));
-                        studentScoreDto.setGender(fieldSet.readString("gender"));
-                        studentScoreDto.setSchoolName(fieldSet.readString("schoolName"));
-                        return studentScoreDto;
-                    }
-                })
+                .addFragmentRootElements("studentScoreDto")
+                .unmarshaller(jaxb2Marshaller())
                 .build();
-
+    }
+    @Bean
+    public Jaxb2Marshaller jaxb2Marshaller() {
+        Jaxb2Marshaller jaxb2Marshaller = new Jaxb2Marshaller();
+        jaxb2Marshaller.setClassesToBeBound(StudentScoreDto.class);
+        return jaxb2Marshaller;
     }
 
-    private JpaItemWriter<StudentScoreEntity> studentScoreItemWriter(){
-        return new JpaItemWriterBuilder<StudentScoreEntity>()
-                .entityManagerFactory(entityManagerFactory)
+    @Bean
+    public Jaxb2Marshaller jaxb2MarshallerWriter() {
+        Jaxb2Marshaller jaxb2Marshaller = new Jaxb2Marshaller();
+        jaxb2Marshaller.setClassesToBeBound(StudentExtractedInfoDto.class);
+        return jaxb2Marshaller;
+    }
+
+    @Bean
+    public StaxEventItemWriter<StudentExtractedInfoDto> personXmlFileWriter() {
+        WritableResource resource = new FileSystemResource("src/main/resources/csv/output.xml");
+        return new StaxEventItemWriterBuilder<StudentExtractedInfoDto>()
+                .name("studentExtractedInfoItemWriter")
+                .resource(resource)
+                .marshaller(jaxb2MarshallerWriter())
+                .rootTagName("extractedInfo")
                 .build();
     }
 

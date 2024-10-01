@@ -1,19 +1,21 @@
 package com.example.spring_batch.batch.dto;
 
+
+import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@XmlRootElement()
+@Data
 public class StudentScoreDto {
     private String name;
     private int age;
     private Integer score;
     private String gender;
     private String schoolName;
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
 
     public String getName() {
         return name;
@@ -37,6 +39,14 @@ public class StudentScoreDto {
 
     public void setScore(Integer score) {
         this.score = score;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
     public String getSchoolName() {

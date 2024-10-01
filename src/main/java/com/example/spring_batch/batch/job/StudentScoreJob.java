@@ -17,15 +17,13 @@ import java.util.UUID;
 public class StudentScoreJob {
     private final JobRepository jobRepository;
     private final Step importStudentScoreCSVtoDB;
-    private final Step findTop3Student;
-    private final Step handleMissingScoreStudentStep;
 
     @Bean
     ApplicationRunner JobRunner(JobLauncher jobLauncher, Job studentScoreJobConfigSequence) {
         return args -> {
             var jobParameters = new JobParametersBuilder()
                     .addString("uuid", UUID.randomUUID().toString())
-                    .addString("csvFilePath", "csv/student-score.csv")
+                    .addString("csvFilePath", "csv/student-score.xml")
                     .toJobParameters();
             jobLauncher.run(studentScoreJobConfigSequence, jobParameters);
         };
@@ -33,20 +31,14 @@ public class StudentScoreJob {
 
     public StudentScoreJob(
             JobRepository jobRepository
-            , @Qualifier("studentScoreCSVtoDB") Step importStudentScoreCSVtoDB
-            , @Qualifier("findTop3StudentStep") Step findTop3Student
-            , @Qualifier("handleMissingScoreStudentStep") Step handleMissingScoreStudentStep) {
+            , Step importStudentScoreCSVtoDB) {
         this.jobRepository = jobRepository;
         this.importStudentScoreCSVtoDB = importStudentScoreCSVtoDB;
-        this.findTop3Student = findTop3Student;
-        this.handleMissingScoreStudentStep = handleMissingScoreStudentStep;
     }
     @Bean
     public Job studentScoreJobConfigSequence() {
         return new JobBuilder("studentScoreJob", jobRepository)
                 .start(importStudentScoreCSVtoDB)
-                .next(handleMissingScoreStudentStep)
-                .next(findTop3Student)
                 .build();
     }
 
