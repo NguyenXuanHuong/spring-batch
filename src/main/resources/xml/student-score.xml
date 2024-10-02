@@ -1,0 +1,41 @@
+<!--root tag of the file-->
+<students>
+<!--    begin of the first fragment-->
+<!--    root tag of the fragment-->
+    <student>
+        <name>student1</name>
+        <age>16</age>
+        <score>50</score>
+        <gender>male</gender>
+        <schoolName>school1</schoolName>
+    </student>
+<!--    end of the first fragment-->
+    <student>
+        <name>student2</name>
+        <age>16</age>
+        <score>50</score>
+        <gender>male</gender>
+        <schoolName>school2</schoolName>
+    </student>
+    <student>
+        <name>student3</name>
+        <age>16</age>
+        <score>50</score>
+        <gender>male</gender>
+        <schoolName>school3</schoolName>
+    </student>
+    <student>
+        <name>student4</name>
+        <age>16</age>
+        <score>50</score>
+        <gender>male</gender>
+        <schoolName>school4</schoolName>
+    </student>
+    <student>
+        <name>student5</name>
+        <age>16</age>
+        <score>50</score>
+        <gender>male</gender>
+        <schoolName>school5</schoolName>
+    </student>
+</students>
