@@ -22,7 +22,7 @@ public class StudentScoreJob {
         return args -> {
             var jobParameters = new JobParametersBuilder()
                     .addString("uuid", UUID.randomUUID().toString())
-                    .addString("xmlFilePath", "xml/student-score.xml")
+                    .addString("jsonFilePath", "json/student-score.json")
                     .toJobParameters();
             jobLauncher.run(studentScoreJobConfigSequence, jobParameters);
         };

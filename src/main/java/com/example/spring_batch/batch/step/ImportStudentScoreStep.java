@@ -7,17 +7,18 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.xml.StaxEventItemReader;
-import org.springframework.batch.item.xml.StaxEventItemWriter;
-import org.springframework.batch.item.xml.builder.StaxEventItemReaderBuilder;
-import org.springframework.batch.item.xml.builder.StaxEventItemWriterBuilder;
+import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
+import org.springframework.batch.item.json.JacksonJsonObjectReader;
+import org.springframework.batch.item.json.JsonFileItemWriter;
+import org.springframework.batch.item.json.JsonItemReader;
+import org.springframework.batch.item.json.builder.JsonFileItemWriterBuilder;
+import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.WritableResource;
-import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -40,46 +41,29 @@ public class ImportStudentScoreStep {
     public Step studentScoreCSVtoDB() {
         return new StepBuilder("studentScoreCSVtoDB", jobRepository)
                 .<StudentScoreDto, StudentExtractedInfoDto>chunk(2, platformTransactionManager)
-                .reader(itemReader(null))
+                .reader(jsonItemReader(null))
                 .processor(studentScoreProcessor)
-                .writer(xmlFileWriter())
+                .writer(jsonFileItemWriter())
                 .build();
     }
 
+    @Bean
     @StepScope
-    @Bean
-    public StaxEventItemReader<StudentScoreDto> itemReader(
-            @Value("#{jobParameters[xmlFilePath]}") String filePath) {
-        return new StaxEventItemReaderBuilder<StudentScoreDto>()
-                .name("studentXmlFileReader")
+    public JsonItemReader<StudentScoreDto> jsonItemReader(@Value("#{jobParameters[jsonFilePath]}") String filePath) {
+        return new JsonItemReaderBuilder<StudentScoreDto>()
+                .name("JsonItemReader")
+                .jsonObjectReader(new JacksonJsonObjectReader<>(StudentScoreDto.class))
                 .resource(new ClassPathResource(filePath))
-                .addFragmentRootElements("student")
-                .unmarshaller(jaxb2Marshaller())
                 .build();
     }
-    @Bean
-    public Jaxb2Marshaller jaxb2Marshaller() {
-        Jaxb2Marshaller jaxb2Marshaller = new Jaxb2Marshaller();
-        jaxb2Marshaller.setClassesToBeBound(StudentScoreDto.class);
-        return jaxb2Marshaller;
-    }
 
     @Bean
-    public Jaxb2Marshaller jaxb2MarshallerWriter() {
-        Jaxb2Marshaller jaxb2Marshaller = new Jaxb2Marshaller();
-        jaxb2Marshaller.setClassesToBeBound(StudentExtractedInfoDto.class);
-        return jaxb2Marshaller;
-    }
-
-    @Bean
-    public StaxEventItemWriter<StudentExtractedInfoDto> xmlFileWriter() {
-        WritableResource resource = new FileSystemResource("src/main/resources/xml/output.xml");
-        return new StaxEventItemWriterBuilder<StudentExtractedInfoDto>()
-                .name("studentExtractedInfoItemWriter")
+    public JsonFileItemWriter<StudentExtractedInfoDto> jsonFileItemWriter() {
+        WritableResource resource = new FileSystemResource("src/main/resources/json/output.json");
+        return new JsonFileItemWriterBuilder<StudentExtractedInfoDto>()
+                .name("jsonFileItemWriter")
+                .jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>())
                 .resource(resource)
-                .marshaller(jaxb2MarshallerWriter())
-                .rootTagName("extractedInfo")
                 .build();
     }
-
 }

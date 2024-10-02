@@ -1,13 +1,11 @@
 package com.example.spring_batch.batch.dto;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@XmlRootElement(name = "student-info")
 @Data
 public class StudentExtractedInfoDto {
     private String name;
