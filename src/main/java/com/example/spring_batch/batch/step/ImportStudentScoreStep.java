@@ -42,32 +42,32 @@ public class ImportStudentScoreStep {
     public Step studentScoreCSVtoDB() {
         return new StepBuilder("studentScoreCSVtoDB", jobRepository)
                 .<StudentScoreEntity, ExtractedStudentInfoEntity>chunk(2, platformTransactionManager)
-                .reader(jpaCursorItemReader())
+                .reader(jpaPagingItemReader())
                 .processor(studentScoreProcessor)
                 .writer(jpaWriter())
                 .build();
     }
 
-//    @Bean
-//    public JpaPagingItemReader<StudentScoreEntity> jpaPagingItemReader(
-//    ) {
-//        return new JpaPagingItemReaderBuilder<StudentScoreEntity>()
-//                .name("jpaPagingItemReader")
-//                .entityManagerFactory(entityManagerFactory)
-//                .queryString("select s from StudentScoreEntity s")
-//                .pageSize(3)
-//                .build();
-//    }
-
     @Bean
-    public JpaCursorItemReader<StudentScoreEntity> jpaCursorItemReader() {
-        // data is saved in ResultSet.
-        return new JpaCursorItemReaderBuilder<StudentScoreEntity>()
-                .name("jpaCursorItemReader")
+    public JpaPagingItemReader<StudentScoreEntity> jpaPagingItemReader(
+    ) {
+        return new JpaPagingItemReaderBuilder<StudentScoreEntity>()
+                .name("jpaPagingItemReader")
                 .entityManagerFactory(entityManagerFactory)
-                .queryString("SELECT s FROM StudentScoreEntity s")
+                .queryString("select s from StudentScoreEntity s")
+                .pageSize(3)
                 .build();
     }
+
+//    @Bean
+//    public JpaCursorItemReader<StudentScoreEntity> jpaCursorItemReader() {
+//        // data is saved in ResultSet.
+//        return new JpaCursorItemReaderBuilder<StudentScoreEntity>()
+//                .name("jpaCursorItemReader")
+//                .entityManagerFactory(entityManagerFactory)
+//                .queryString("SELECT s FROM StudentScoreEntity s")
+//                .build();
+//    }
     @Bean
     public JpaItemWriter<ExtractedStudentInfoEntity> jpaWriter() {
         JpaItemWriter<ExtractedStudentInfoEntity> writer = new JpaItemWriter<>();
