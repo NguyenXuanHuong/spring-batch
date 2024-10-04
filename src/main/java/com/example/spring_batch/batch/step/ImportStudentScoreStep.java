@@ -1,24 +1,23 @@
 package com.example.spring_batch.batch.step;
 
-import com.example.spring_batch.batch.dto.StudentExtractedInfoDto;
-import com.example.spring_batch.batch.dto.StudentScoreDto;
+import com.example.spring_batch.batch.entity.ExtractedStudentInfoEntity;
+import com.example.spring_batch.batch.entity.StudentScoreEntity;
 import com.example.spring_batch.batch.processor.StudentScoreProcessor;
+import jakarta.persistence.EntityManagerFactory;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
-import org.springframework.batch.item.json.JacksonJsonObjectReader;
-import org.springframework.batch.item.json.JsonFileItemWriter;
-import org.springframework.batch.item.json.JsonItemReader;
-import org.springframework.batch.item.json.builder.JsonFileItemWriterBuilder;
-import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
+import org.springframework.batch.item.database.JpaCursorItemReader;
+import org.springframework.batch.item.database.JpaItemWriter;
+import org.springframework.batch.item.database.JpaPagingItemReader;
+import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
+import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
+import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.WritableResource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -27,43 +26,52 @@ public class ImportStudentScoreStep {
     private final JobRepository jobRepository;
     private final PlatformTransactionManager platformTransactionManager;
     private final StudentScoreProcessor studentScoreProcessor;
+    private final EntityManagerFactory entityManagerFactory;
 
 
     public ImportStudentScoreStep(JobRepository jobRepository
             , PlatformTransactionManager platformTransactionManager
-            , StudentScoreProcessor studentScoreProcessor) {
+            , StudentScoreProcessor studentScoreProcessor, EntityManagerFactory entityManagerFactory) {
         this.jobRepository = jobRepository;
         this.platformTransactionManager = platformTransactionManager;
         this.studentScoreProcessor = studentScoreProcessor;
+        this.entityManagerFactory = entityManagerFactory;
     }
 
     @Bean
     public Step studentScoreCSVtoDB() {
         return new StepBuilder("studentScoreCSVtoDB", jobRepository)
-                .<StudentScoreDto, StudentExtractedInfoDto>chunk(2, platformTransactionManager)
-                .reader(jsonItemReader(null))
+                .<StudentScoreEntity, ExtractedStudentInfoEntity>chunk(2, platformTransactionManager)
+                .reader(jpaCursorItemReader())
                 .processor(studentScoreProcessor)
-                .writer(jsonFileItemWriter())
+                .writer(jpaWriter())
                 .build();
     }
 
-    @Bean
-    @StepScope
-    public JsonItemReader<StudentScoreDto> jsonItemReader(@Value("#{jobParameters[jsonFilePath]}") String filePath) {
-        return new JsonItemReaderBuilder<StudentScoreDto>()
-                .name("JsonItemReader")
-                .jsonObjectReader(new JacksonJsonObjectReader<>(StudentScoreDto.class))
-                .resource(new ClassPathResource(filePath))
-                .build();
-    }
+//    @Bean
+//    public JpaPagingItemReader<StudentScoreEntity> jpaPagingItemReader(
+//    ) {
+//        return new JpaPagingItemReaderBuilder<StudentScoreEntity>()
+//                .name("jpaPagingItemReader")
+//                .entityManagerFactory(entityManagerFactory)
+//                .queryString("select s from StudentScoreEntity s")
+//                .pageSize(3)
+//                .build();
+//    }
 
     @Bean
-    public JsonFileItemWriter<StudentExtractedInfoDto> jsonFileItemWriter() {
-        WritableResource resource = new FileSystemResource("src/main/resources/json/output.json");
-        return new JsonFileItemWriterBuilder<StudentExtractedInfoDto>()
-                .name("jsonFileItemWriter")
-                .jsonObjectMarshaller(new JacksonJsonObjectMarshaller<>())
-                .resource(resource)
+    public JpaCursorItemReader<StudentScoreEntity> jpaCursorItemReader() {
+        // data is saved in ResultSet.
+        return new JpaCursorItemReaderBuilder<StudentScoreEntity>()
+                .name("jpaCursorItemReader")
+                .entityManagerFactory(entityManagerFactory)
+                .queryString("SELECT s FROM StudentScoreEntity s")
                 .build();
+    }
+    @Bean
+    public JpaItemWriter<ExtractedStudentInfoEntity> jpaWriter() {
+        JpaItemWriter<ExtractedStudentInfoEntity> writer = new JpaItemWriter<>();
+        writer.setEntityManagerFactory(entityManagerFactory);
+        return writer;
     }
 }
