@@ -3,8 +3,10 @@ package com.example.spring_batch.batch.step;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
@@ -54,7 +56,12 @@ public class ImportStudentScoreStep {
                     }
                 })
                 .processor(compositeProcessor())
-                .writer(chunk -> System.out.println("item passed to ItemProcessor: " + chunk.getItems().get(0)))
+                .writer(new ItemWriter<Integer>() {
+                    @Override
+                    public void write(Chunk<? extends Integer> chunk) throws Exception {
+                        System.out.println("item passed to ItemProcessor: " + chunk.getItems().get(0));
+                    }
+                })
                 .build();
     }
 
