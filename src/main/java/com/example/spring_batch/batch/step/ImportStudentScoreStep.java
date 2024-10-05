@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
+import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,7 +65,7 @@ public class ImportStudentScoreStep {
 //        return new JdbcCursorItemReaderBuilder<StudentScoreDto>()
 //                .dataSource(dataSource)
 //                .name("jdbcCursorItemReader")
-//                .sql("SELECT * FROM `spring-batch`.student_score_entity")
+//                .sql("SELECT * FROM student_score_entity")
 //                .rowMapper(studentScoreRowMapper)
 //                .build();
 //    }
@@ -85,12 +86,12 @@ public class ImportStudentScoreStep {
 
     @Bean
     public MySqlPagingQueryProvider queryProvider() {
-        final Map<String, org.springframework.batch.item.database.Order> sortKeys = new HashMap<>();
-        sortKeys.put("id", org.springframework.batch.item.database.Order.ASCENDING);
         MySqlPagingQueryProvider provider = new MySqlPagingQueryProvider();
         provider.setSelectClause("select *");
         provider.setFromClause("from student_score_entity");
         provider.setWhereClause("where id < :id");
+        final Map<String, org.springframework.batch.item.database.Order> sortKeys = new HashMap<>();
+        sortKeys.put("id", org.springframework.batch.item.database.Order.ASCENDING);
         provider.setSortKeys(sortKeys);
         return provider;
     }
