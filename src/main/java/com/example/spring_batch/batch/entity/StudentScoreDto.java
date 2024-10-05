@@ -1,14 +1,6 @@
 package com.example.spring_batch.batch.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
-@Entity
-public class StudentScoreEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class StudentScoreDto {
     private int id;
     private String name;
     private int age;
