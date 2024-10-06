@@ -45,7 +45,7 @@ public class ImportStudentScoreStep {
                         System.out.println("------------complete the chunk -----------");
                     }
                 })
-//                .taskExecutor(taskExecutor())
+                .taskExecutor(taskExecutor())
                 .build();
     }
     private FlatFileItemReader<StudentScoreDto> studentScoreFileReader(){

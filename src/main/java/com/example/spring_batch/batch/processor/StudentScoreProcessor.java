@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class StudentScoreProcessor implements ItemProcessor<StudentScoreDto, StudentScoreEntity> {
+    private static final Logger log = LoggerFactory.getLogger(StudentScoreProcessor.class);
 
     @Override
     public StudentScoreEntity process(StudentScoreDto studentScoreDto){
@@ -20,12 +21,12 @@ public class StudentScoreProcessor implements ItemProcessor<StudentScoreDto, Stu
         studentScoreEntity.setName(studentScoreDto.getName());
         studentScoreEntity.setGender(studentScoreDto.getGender());
         studentScoreEntity.setSchoolName(studentScoreDto.getSchoolName());
-        System.out.println("processing item: " + studentScoreDto.getName());
-//        try {
-//            Thread.sleep(2000);
-//        } catch (InterruptedException e) {
-//            System.out.println("Thread interrupted");
-//        }
+        log.info("processing item: " + studentScoreDto.getName());
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            System.out.println("Thread interrupted");
+        }
         return studentScoreEntity;
 
     }
