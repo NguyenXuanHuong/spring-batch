@@ -7,8 +7,8 @@ import jakarta.persistence.EntityManagerFactory;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.database.JpaItemWriter;
-import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
+import org.springframework.batch.item.Chunk;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
@@ -22,16 +22,13 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class ImportStudentScoreStep {
 
     private final JobRepository jobRepository;
-    private final EntityManagerFactory entityManagerFactory;
     private final PlatformTransactionManager platformTransactionManager;
     private final StudentScoreProcessor studentScoreProcessor;
 
     public ImportStudentScoreStep(JobRepository jobRepository
-            , EntityManagerFactory entityManagerFactory
             , PlatformTransactionManager platformTransactionManager
             , StudentScoreProcessor studentScoreProcessor) {
         this.jobRepository = jobRepository;
-        this.entityManagerFactory = entityManagerFactory;
         this.platformTransactionManager = platformTransactionManager;
         this.studentScoreProcessor = studentScoreProcessor;
     }
@@ -39,14 +36,18 @@ public class ImportStudentScoreStep {
     @Bean
     public Step studentScoreCSVtoDB() {
         return new StepBuilder("studentScoreCSVtoDB", jobRepository)
-                .<StudentScoreDto, StudentScoreEntity>chunk(3, platformTransactionManager)
+                .<StudentScoreDto, StudentScoreEntity>chunk(2, platformTransactionManager)
                 .reader(studentScoreFileReader())
                 .processor(studentScoreProcessor)
-                .writer(studentScoreItemWriter())
-                .taskExecutor(taskExecutor())
+                .writer(new ItemWriter<StudentScoreEntity>() {
+                    @Override
+                    public void write(Chunk<? extends StudentScoreEntity> chunk) throws Exception {
+                        System.out.println("------------complete the chunk -----------");
+                    }
+                })
+//                .taskExecutor(taskExecutor())
                 .build();
     }
-
     private FlatFileItemReader<StudentScoreDto> studentScoreFileReader(){
         return new FlatFileItemReaderBuilder<StudentScoreDto>()
                 .resource(new ClassPathResource("csv/student-score.csv"))
@@ -57,13 +58,6 @@ public class ImportStudentScoreStep {
                 .build();
 
     }
-
-    private JpaItemWriter<StudentScoreEntity> studentScoreItemWriter(){
-        return new JpaItemWriterBuilder<StudentScoreEntity>()
-                .entityManagerFactory(entityManagerFactory)
-                .build();
-    }
-
     @Bean
     public TaskExecutor taskExecutor(){
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
