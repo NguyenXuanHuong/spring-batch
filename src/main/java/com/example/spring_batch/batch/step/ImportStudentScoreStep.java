@@ -11,8 +11,6 @@ import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
-import org.springframework.batch.item.file.mapping.FieldSetMapper;
-import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -56,27 +54,6 @@ public class ImportStudentScoreStep {
                 .names("name,age,score,gender,schoolName".split(","))
                 .linesToSkip(1)
                 .targetType(StudentScoreDto.class)
-
-                /*
-                // manually mapping the csv item to the dto field.
-                .fieldSetMapper(new FieldSetMapper<StudentScoreDto>() {
-                    @Override
-                    public StudentScoreDto mapFieldSet(FieldSet fieldSet) {
-                        StudentScoreDto studentScoreDto = new StudentScoreDto();
-//                        studentScoreDto.setName(fieldSet.readString(2));
-//                        studentScoreDto.setAge(fieldSet.readInt(3));
-//                        studentScoreDto.setScore(fieldSet.readInt(4));
-                        studentScoreDto.setName(fieldSet.readString("name"));
-                        studentScoreDto.setAge(fieldSet.readInt("age"));
-                        studentScoreDto.setScore(fieldSet.readInt("score"));
-                        studentScoreDto.setGender(fieldSet.readString("gender"));
-                        studentScoreDto.setSchoolName(fieldSet.readString("schoolName"));
-                        return studentScoreDto;
-                    }
-                })
-                 */
-
-
                 .build();
 
     }

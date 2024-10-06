@@ -19,7 +19,7 @@ public class StudentScoreProcessor implements ItemProcessor<StudentScoreDto, Stu
         studentScoreEntity.setName(studentScoreDto.getName());
         studentScoreEntity.setGender(studentScoreDto.getGender());
         studentScoreEntity.setSchoolName(studentScoreDto.getSchoolName());
-        log.info("processing item: " + studentScoreDto);
+        log.info("processing item: " + studentScoreDto.getName());
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
